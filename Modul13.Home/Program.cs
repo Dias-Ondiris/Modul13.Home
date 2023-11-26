@@ -8,44 +8,60 @@ namespace Modul13.Home
 {
     class Program
     {
+        static BankQueue bankQueue = new BankQueue();
+        static int clientIdCounter = 1;
+
         static void Main(string[] args)
         {
-            var bankQueue = new BankQueue();
             bool exit = false;
-            int clientId = 1;
+
             while (!exit)
             {
-                Console.WriteLine("\n1. Встать в очередь\n2. Обслужить следующего клиента\n3. Выход");
-                Console.Write("Выберите опцию: ");
-                string option = Console.ReadLine();
+                Console.WriteLine("\n1. Встать в очередь\n2. Обслужить следующего клиента\n3. Показать среднее время ожидания\n4. Показать историю обслуженных клиентов\n5. Выход");
+                Console.Write("Выберите действие: ");
+                string choice = Console.ReadLine();
 
-                switch (option)
+                switch (choice)
                 {
                     case "1":
-                        Console.Write("Введите имя: ");
-                        string name = Console.ReadLine();
-                        ServiceType serviceType = ChooseService();
-                        bankQueue.AddClient(new Client(clientId++, name, serviceType));
+                        EnqueueClient();
                         break;
                     case "2":
-                        bankQueue.ServeClient();
+                        bankQueue.DequeueClient();
                         break;
                     case "3":
+                        bankQueue.DisplayAverageWaitTime();
+                        break;
+                    case "4":
+                        bankQueue.DisplayServedClientsHistory();
+                        break;
+                    case "5":
                         exit = true;
                         break;
                     default:
-                        Console.WriteLine("Неверная опция.");
+                        Console.WriteLine("Неверный ввод.");
                         break;
                 }
             }
         }
-        private static ServiceType ChooseService()
-        {
-            Console.WriteLine("Выберите услугу:\n1. Кредитование\n2. Открытие вклада\n3. Консультация");
-            Console.Write("Ваш выбор: ");
-            string serviceChoice = Console.ReadLine();
 
-            switch (serviceChoice)
+        private static void EnqueueClient()
+        {
+            Console.Write("Введите имя: ");
+            string name = Console.ReadLine();
+            ServiceType serviceType = ChooseServiceType();
+            bool isVip = AskIfVIP();
+
+            bankQueue.EnqueueClient(new Client(clientIdCounter++, name, serviceType, isVip));
+        }
+
+        private static ServiceType ChooseServiceType()
+        {
+            Console.WriteLine("Выберите тип услуги:\n1. Кредитование\n2. Открытие вклада\n3. Консультация");
+            Console.Write("Ваш выбор: ");
+            string input = Console.ReadLine();
+
+            switch (input)
             {
                 case "1":
                     return ServiceType.Loan;
@@ -55,6 +71,17 @@ namespace Modul13.Home
                     return ServiceType.Consultation;
             }
         }
-    }
 
+        private static bool AskIfVIP()
+        {
+            string response;
+            while (true) {
+                Console.Write("Это VIP клиент? (да/нет): ");
+                 response = Console.ReadLine();
+                if (response == "да" || response == "нет")break;
+                
+            }
+            return response.Equals("да", StringComparison.OrdinalIgnoreCase);
+        }
+    }
 }
